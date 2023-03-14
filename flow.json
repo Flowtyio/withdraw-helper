@@ -25,21 +25,21 @@
 		"WithdrawHelper": {
 			"source": "./contracts/WithdrawHelper.cdc",
 			"aliases": {
-			  "emulator": "0xee82856bf20e2aa6",
+			  "emulator": "0xf8d6e0586b0a20c7",
 			  "testnet": "0xcf2a12e6d2cc212b"
 			}
 		},
 		"ArrayUtils": {
 			"source": "./contracts/ArrayUtils.cdc",
 			"aliases": {
-			  "emulator": "0xee82856bf20e2aa6",
+			  "emulator": "0xf8d6e0586b0a20c7",
 			  "testnet": "0xcf2a12e6d2cc212b"
 			}
 		},
 		"StringUtils": {
 			"source": "./contracts/StringUtils.cdc",
 			"aliases": {
-			  "emulator": "0xee82856bf20e2aa6",
+			  "emulator": "0xf8d6e0586b0a20c7",
 			  "testnet": "0xcf2a12e6d2cc212b"
 			}
 		},

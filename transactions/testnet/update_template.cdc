@@ -11,6 +11,6 @@ transaction(identifier: String) {
   
   execute {
     let t = CompositeType(identifier)!
-    self.admin.deployTemplate(nftType: t)
+    self.admin.updateTemplate(nftType: t)
   }
 }

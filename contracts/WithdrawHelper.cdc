@@ -14,7 +14,7 @@ pub contract WithdrawHelper {
     pub resource interface Withdrawer {
         access(contract) let nftType: Type
 
-        pub fun withdraw(nftID: UInt64, expectedType: Type, cap: Capability<&{NonFungibleToken.Provider}>): @AnyResource{NonFungibleToken.INFT, MetadataViews.Resolver} {
+        pub fun withdraw(nftID: UInt64, expectedType: Type, provider: &{NonFungibleToken.Provider}): @AnyResource{NonFungibleToken.INFT, MetadataViews.Resolver} {
             pre {
                 expectedType == self.nftType: "expectedType does not match withdrawer nftType"
             }
@@ -31,10 +31,10 @@ pub contract WithdrawHelper {
         return StringUtils.join(["WithdrawHelper", segments[1], segments[2]], "")
     }
 
-    pub fun withdraw(nftID: UInt64, expectedType: Type, cap: Capability<&{NonFungibleToken.Provider}>): @AnyResource{NonFungibleToken.INFT, MetadataViews.Resolver} {
+    pub fun withdraw(nftID: UInt64, expectedType: Type, provider: &{NonFungibleToken.Provider}): @AnyResource{NonFungibleToken.INFT, MetadataViews.Resolver} {
         let idenfitier = WithdrawHelper.getPathIdentifier(expectedType)
         let s = PublicPath(identifier: idenfitier)!
-        return <- self.account.getCapability<&{Withdrawer}>(s).borrow()!.withdraw(nftID: nftID, expectedType: expectedType, cap: cap)
+        return <- self.account.getCapability<&{Withdrawer}>(s).borrow()!.withdraw(nftID: nftID, expectedType: expectedType, provider: provider)
     }
 
     pub resource Admin {
@@ -46,6 +46,16 @@ pub contract WithdrawHelper {
             let generatedName = contractName.concat(addressString).concat("WithdrawHelper")
             let templateCode = WithdrawHelper.getTemplate(contractName: contractName, addressString: addressString, generatedName: generatedName).utf8
             WithdrawHelper.account.contracts.add(name: generatedName, code: templateCode)
+        }
+
+        pub fun updateTemplate(nftType: Type) {
+            let segments = StringUtils.split(nftType.identifier, ".")
+            let contractName = segments[2]
+            let addressString = "0x".concat(segments[1])
+
+            let generatedName = contractName.concat(addressString).concat("WithdrawHelper")
+            let templateCode = WithdrawHelper.getTemplate(contractName: contractName, addressString: addressString, generatedName: generatedName).utf8
+            WithdrawHelper.account.contracts.update__experimental(name: generatedName, code: templateCode)  
         }
     }
 
@@ -59,15 +69,15 @@ pub contract WithdrawHelper {
                 .concat("import WithdrawHelper from ").concat(withdrawHelperAddress.toString()).concat("\n")
                 .concat("import NonFungibleToken from ").concat(nftAddress).concat("\n")
                 .concat("import MetadataViews from ").concat(nftAddress).concat("\n")
-                .concat("import ").concat(contractName).concat(" from ").concat(addressString).concat("\n")
+                .concat("import ").concat(contractName).concat(" from ").concat(addressString).concat("\n\n")
                 .concat("pub contract ").concat(generatedName).concat(" {\n")
                 .concat("   pub let PublicPath: PublicPath\n")
                 .concat("   pub let StoragePath: StoragePath\n")
                 .concat("\n")
                 .concat("   pub resource Withdrawer: WithdrawHelper.Withdrawer {\n")
                 .concat("       access(contract) let nftType: Type\n\n")
-                .concat("       pub fun withdraw(nftID: UInt64, expectedType: Type, cap: Capability<&{NonFungibleToken.Provider}>): @AnyResource{NonFungibleToken.INFT, MetadataViews.Resolver} {\n")
-                .concat("           let nft <- cap.borrow()!.withdraw(withdrawID: nftID) as! @").concat(contractName).concat(".NFT\n")
+                .concat("       pub fun withdraw(nftID: UInt64, expectedType: Type, provider: &{NonFungibleToken.Provider}): @AnyResource{NonFungibleToken.INFT, MetadataViews.Resolver} {\n")
+                .concat("           let nft <- provider.withdraw(withdrawID: nftID) as! @").concat(contractName).concat(".NFT\n")
                 .concat("           return <- nft\n")
                 .concat("       }\n")
                 .concat("\n")
